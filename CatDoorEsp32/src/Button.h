@@ -1,23 +1,32 @@
 //
+// Simple button / switch class
+//
+
+#include <functional>
+#include <vector>
 
 // TODO: add callback for button-change events
 
 class Button {
+public:
+    using Value = bool;
+    using Callback = std::function<void(Value)>;
 private:
     int pin;
     uint16_t history = 0;
     unsigned long T1 = 0;
     bool nc = false; // normally-closed
     bool buttonState = false;
-    bool buttonWasPressed = false;
     int timeInterval = 0;
+    std::vector<Callback> callbacks;
 
 public:
-    Button(int pin, bool normally_closed = false, int timeInterval = 5)
+    Button(int pin, bool normally_closed = false, int timeInterval = 5, Callback callback=nullptr)
         : pin(pin)
         , nc(normally_closed)
         , timeInterval(timeInterval)
     {
+        addCallback(callback);
     }
 
     void init()
@@ -25,7 +34,13 @@ public:
         pinMode(pin, INPUT_PULLUP);
     }
 
-    bool readPin()
+    void addCallback(const Callback& c)
+    {
+        if (c)
+            callbacks.push_back(c);
+    }
+
+    Value getValue()
     {
         auto val = digitalRead(pin);
         if (nc)
@@ -33,50 +48,34 @@ public:
         return val;
     }
 
-    bool buttonPressed()
+    void visit();
+    
+private:
+    void invokeCallbacks(Value value)
     {
-        if (buttonWasPressed)
+        for (auto& c : callbacks)
         {
-            buttonWasPressed = false;
-            return true;
+            c(value);
         }
-        return false;
     }
 
     void updateButtonState(bool newState)
     {
-        if (!buttonState && newState)
+        if (newState != buttonState)
         {
-            buttonWasPressed = true;
+            buttonState = newState;
+            invokeCallbacks(buttonState);
         }
-        
-        buttonState = newState;
     }
 
     void scan()
     {        
         history <<= 1;
-        history |= readPin();
+        history |= getValue();
         int sumStates = __builtin_popcount(history);
         if (sumStates >= 10)
             updateButtonState(true);
         else if (sumStates <= 4)
             updateButtonState(false);
-    }
-
-    bool read()
-    {
-        auto T2 = millis();
-        if ((T2 - T1) >= timeInterval) {
-            scan();
-            T1 = T2;
-        }
-
-        if (buttonState) {
-            history = 0;
-            buttonState = false;
-            return true;
-        }
-        return false;
     }
 };
