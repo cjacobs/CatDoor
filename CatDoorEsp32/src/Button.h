@@ -5,8 +5,6 @@
 #include <functional>
 #include <vector>
 
-// TODO: add callback for button-change events
-
 class Button {
 public:
     using Value = bool;
@@ -78,4 +76,14 @@ private:
         else if (sumStates <= 4)
             updateButtonState(false);
     }
+};
+
+Button::Callback turnOn(std::function<void(void)> callback)
+{
+    return [callback](Button::Value val) { if (val) callback(); };
+};
+
+Button::Callback turnOff(std::function<void(void)> callback)
+{
+    return [callback](Button::Value val) { if (!val) callback(); };
 };

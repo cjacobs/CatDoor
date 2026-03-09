@@ -1,6 +1,4 @@
-//
-// This file just forwards the Arduino setup() and loop() functions to the controller
-//
+// ESP32C version
 
 #include <CatDoorController.h>
 

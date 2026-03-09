@@ -3,6 +3,7 @@
 class NFCReader {
 private:
     Adafruit_PN532 nfc;
+    bool isValid = false;
 
 public:
     NFCReader(int pin)
@@ -10,9 +11,20 @@ public:
     {
     }
 
+    bool valid()
+    {
+        return isValid;
+    }
+
     void begin()
     {
         nfc.begin();
+        isValid = checkNFCInterface();
+        // if (isValid)
+        // {
+        //     nfc.setPassiveActivationRetries(0xFF);
+        // }
+
     }
     
     bool checkNFCInterface(bool verbose = false)
@@ -38,6 +50,9 @@ public:
     uint8_t readTag(uint8_t uid[], uint8_t* uidLength,
         uint16_t timeout = 0)
     {
+        if (!valid())
+            return 0;
+
         uint32_t versiondata = nfc.getFirmwareVersion();
         if (!versiondata)
             return 0;
@@ -53,6 +68,8 @@ public:
 
     void processTag(uint8_t uid[], uint8_t uidLength)
     {
+        if (!valid())
+            return;
         // TODO: check for correct tag
 
         // Display some basic information about the card
