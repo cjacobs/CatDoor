@@ -48,4 +48,6 @@ void Timer::Visit()
         callback(currTime);
         nextFireTime += interval; 
     }
+
+    // TODO: rollover at some point
 }

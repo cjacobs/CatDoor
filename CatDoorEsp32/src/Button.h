@@ -90,15 +90,13 @@ private:
     }
     void scan()
     {
-        updateButtonState(getValue());
-
-    //     history <<= 1;
-    //     history |= getValue();
-    //     int sumStates = __builtin_popcount(history);
-    //     if (sumStates >= 10)
-    //         updateButtonState(true);
-    //     else if (sumStates <= 4)
-    //         updateButtonState(false);
+        history <<= 1;
+        history |= getValue();
+        int sumStates = __builtin_popcount(history);
+        if (sumStates >= 10)
+            updateButtonState(true);
+        else if (sumStates <= 4)
+            updateButtonState(false);
     }
 };
 

@@ -65,11 +65,11 @@ const int stepsPerRevolution = useHalfSteps ? 96 : 48;
 Stepper lockStepper(stepPin, dirPin, enablePin, stepsPerRevolution);
 
 Button calibrationButton(calibrationButtonPin, true);
+Button hallSensorButton(hallSensorPin, true);
 // Button insideMotionSensor(insideMotionSensorPin);
 // Button outsideMotionSensor(outsideMotionSensorPin);
 // Button insideLockSwitch(insideLockSwitchPin, true);
 // Button outsideLockSwitch(outsideLockSwitchPin, true);
-Button hallSensorButton(hallSensorPin, true);
 
 // OLED display
 const int I2C_SDA = 21;
