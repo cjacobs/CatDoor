@@ -135,14 +135,6 @@ void setup()
 
     Serial.println("Done with first part of setup");
 
-
-    // TODO: refactor this
-    // pinMode(insideSelect, OUTPUT);
-    // digitalWrite(insideSelect, HIGH);
-
-    // pinMode(outsideSelect, OUTPUT);
-    // digitalWrite(outsideSelect, HIGH);
-
     if (Serial)
         Serial.println("Initializing inside NFC reader");
     insideNFC.begin();
@@ -195,7 +187,7 @@ void printOutputs()
 
 void loop()
 {
-    // Sleep mode and wake on interrupt. You then need to determine which button was pressed.
+    // TODO: use sleep mode and wake on interrupt.
 
 
     // scanInputs();
@@ -256,7 +248,7 @@ void loop()
 }
 
 //
-// TODO: eventually migrate everything here
+// 
 //
 
 struct Event {};
