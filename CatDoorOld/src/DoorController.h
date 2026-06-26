@@ -22,8 +22,8 @@ private:
   LED hallLed{Pins::LED_HALL};
 
   Button calibButton{Pins::BUTTON_CALIB};
-  NFCReader nfcInside{&VSPI, Pins::NFC_CS_INSIDE, Pins::NFC_RESET_PIN};
-  NFCReader nfcOutside{&HSPI, Pins::NFC_CS_OUTSIDE, Pins::NFC_RESET_PIN};
+  NFCReader nfcInside{&vspi, Pins::NFC_CS_INSIDE, Pins::NFC_RESET_PIN};
+  NFCReader nfcOutside{&hspi, Pins::NFC_CS_OUTSIDE, Pins::NFC_RESET_PIN};
   HallSensor hall{Pins::HALL_PIN};
   StepperLock lock{Pins::STEPPER_STEP, Pins::STEPPER_DIR, Pins::STEPPER_ENABLE};
   Display display;

@@ -11,13 +11,13 @@
 #include <StateMachine.h>
 #include <Button.h>
 #include <LED.h>
-#include <NFCHelper.h>
+#include <NFCReader.h>
 #include <Stepper.h>
 
 namespace Controller
 {
-const int insideSelectPin = 5;
-const int outsideSelectPin = 17;
+const int outsideSelectPin = 5;
+const int insideSelectPin = 17;
 
 // TODO: pass in pins to NFC obj?
 const int PN532_MOSI = 23;
@@ -55,8 +55,8 @@ bool hasOutsideNFC = false;
 bool insideNFCDetected = false;
 bool outsideNFCDetected = false;
 
-LED insideNFCStateLED(insideNFCStateLEDPin);
-LED outsideNFCStateLED(outsideNFCStateLEDPin);
+LED insideNFCStateLED(insideNFCStateLEDPin, LOW);
+LED outsideNFCStateLED(outsideNFCStateLEDPin, HIGH);
 LED doorOpenStateLED(doorOpenStateLEDPin);
 
 // speaker
@@ -65,10 +65,10 @@ const int stepsPerRevolution = useHalfSteps ? 96 : 48;
 Stepper lockStepper(stepPin, dirPin, enablePin, stepsPerRevolution);
 
 Button calibrationButton(calibrationButtonPin, true);
-Button insideMotionSensor(insideMotionSensorPin);
-Button outsideMotionSensor(outsideMotionSensorPin);
-Button insideLockSwitch(insideLockSwitchPin, true);
-Button outsideLockSwitch(outsideLockSwitchPin, true);
+// Button insideMotionSensor(insideMotionSensorPin);
+// Button outsideMotionSensor(outsideMotionSensorPin);
+// Button insideLockSwitch(insideLockSwitchPin, true);
+// Button outsideLockSwitch(outsideLockSwitchPin, true);
 Button hallSensorButton(hallSensorPin, true);
 
 // OLED display
@@ -124,6 +124,10 @@ void setup()
         Serial.println("Hello!");
 
 
+    insideNFCStateLED.init();
+    outsideNFCStateLED.init();
+    doorOpenStateLED.init();
+
     calibrationButton.init();
     calibrationButton.addCallback([](Button::Value v) { if (v) calibrate(); } );
 
@@ -172,10 +176,10 @@ void scanInputs()
 
     // TODO: read hall-effect state
     calibrationButton.visit();
-    insideMotionSensor.visit();
-    outsideMotionSensor.visit();
-    insideLockSwitch.visit();
-    outsideLockSwitch.visit();
+    // insideMotionSensor.visit();
+    // outsideMotionSensor.visit();
+    // insideLockSwitch.visit();
+    // outsideLockSwitch.visit();
     hallSensorButton.visit();
 }
 
@@ -228,10 +232,10 @@ void loop()
         if (insideNFC.readTag(uid, &uidLength, nfcTimeout)) {
             if (Serial)
                 Serial.println("INSIDE!");
-            // processTag(uid, uidLength);
-            // SetLED(insideNFCStateLEDPin, LOW);
+            insideNFC.processTag(uid, uidLength);
+            insideNFCStateLED.Set(HIGH);
         } else {
-            // SetLED(insideNFCStateLEDPin, HIGH);
+            insideNFCStateLED.Set(LOW);
         }
     }
 
@@ -239,10 +243,10 @@ void loop()
         if (outsideNFC.readTag(uid, &uidLength, nfcTimeout)) {
             if (Serial)
                 Serial.println("OUTSIDE!");
-            // processTag(uid, uidLength);
-            // SetLED(outsideNFCStateLEDPin, LOW);
+            outsideNFC.processTag(uid, uidLength);
+            outsideNFCStateLED.Set(HIGH);
         } else {
-            // SetLED(outsideNFCStateLEDPin, HIGH);
+            outsideNFCStateLED.Set(LOW);
         }
     }
     // waitForKeypress();

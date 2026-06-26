@@ -7,8 +7,8 @@ void DoorController::begin() {
   outsideLockLed.begin();
   hallLed.begin();
   calibButton.begin();
-  nfcInside.begin();
-  nfcOutside.begin();
+  // nfcInside.begin();
+  // nfcOutside.begin();
   hall.begin();
   lock.begin();
   display.begin();
@@ -16,18 +16,30 @@ void DoorController::begin() {
 }
 
 void DoorController::loop() {
-  handleNfc();
-  updateLeds();
+  // handleNfc();
+  // updateLeds();
+
+  outsideNfcLed.set(true);
+  insideNfcLed.set(true);
+  outsideLockLed.set(true);
+  insideLockLed.set(true);
+  delay(100);
+  outsideNfcLed.set(false);
+  insideNfcLed.set(false);
+  outsideLockLed.set(false);
+  insideLockLed.set(false);
+  delay(100);
   // idle behavior could be added here
 }
 
 void DoorController::handleNfc() {
   auto tagInside = nfcInside.detectTag();
-  auto tagOutside = nfcOutside.detectTag();
+  // auto tagOutside = nfcOutside.detectTag();
   if (tagInside != NFCTag::None) {
-    performAllowSequence(true);
-  } else if (tagOutside != NFCTag::None) {
-    performAllowSequence(false);
+    Serial.println("TAG");
+    // performAllowSequence(true);
+  // } else if (tagOutside != NFCTag::None) {
+  //   performAllowSequence(false);
   }
 }
 

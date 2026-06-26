@@ -17,3 +17,7 @@ private:
   int resetPin;
   Adafruit_PN532* pn532 = nullptr;
 };
+
+extern SPIClass hspi;
+extern SPIClass vspi;
+

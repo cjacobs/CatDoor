@@ -1,4 +1,6 @@
 #include <Adafruit_PN532.h>
+#include <Arduino.h>
+#include <SPI.h>
 
 class NFCReader {
 private:

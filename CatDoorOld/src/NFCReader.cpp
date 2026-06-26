@@ -1,5 +1,8 @@
 #include "NFCReader.h"
 
+SPIClass hspi(HSPI);
+SPIClass vspi(VSPI);
+
 NFCReader::NFCReader(SPIClass* spi, int csPin, int resetPin)
   : spi(spi), csPin(csPin), resetPin(resetPin) {}
 
@@ -29,6 +32,3 @@ bool NFCReader::isPresent(uint16_t timeout) {
   return detectTag(timeout) == NFCTag::Present;
 }
 
-bool NFCReader::isPresent() {
-  return present;
-}
