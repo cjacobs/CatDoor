@@ -195,12 +195,14 @@ void printOutputs()
 
 void loop()
 {
+    // Sleep mode and wake on interrupt. You then need to determine which button was pressed.
+
+
     // scanInputs();
     // printOutputs();
 
     uint8_t uid[] = { 0, 0, 0, 0, 0, 0, 0 }; // Buffer to store the returned UID
-    uint8_t uidLength; // Length of the UID (4 or 7 bytes depending on ISO14443A
-    // card type)
+    uint8_t uidLength; // Length of the UID (4 or 7 bytes depending on ISO14443A card type)
 
     // auto calibrate = calibrationButton.buttonPressed();
     auto calibrate = calibrationButton.getValue();
