@@ -2,6 +2,7 @@
 // Simple button / switch class
 //
 
+#include <Arduino.h>
 #include <functional>
 #include <vector>
 
@@ -9,6 +10,7 @@ class Button {
 public:
     using Value = bool;
     using Callback = std::function<void(Value)>;
+
 private:
     int pin;
     uint16_t history = 0;
@@ -18,8 +20,15 @@ private:
     int timeInterval = 0;
     std::vector<Callback> callbacks;
 
+    static volatile bool gotInterrupt;
+
+    static void interrupt()
+    {
+        gotInterrupt = true;
+    }
+
 public:
-    Button(int pin, bool normally_closed = false, int timeInterval = 5, Callback callback=nullptr)
+    Button(int pin, bool normally_closed = false, int timeInterval = 5, Callback callback = nullptr)
         : pin(pin)
         , nc(normally_closed)
         , timeInterval(timeInterval)
@@ -30,6 +39,11 @@ public:
     void init()
     {
         pinMode(pin, INPUT_PULLUP);
+
+        // attach interrupts
+        Serial.print("Interrupt pin: ");
+        Serial.println(digitalPinToInterrupt(pin));
+        attachInterrupt(digitalPinToInterrupt(pin), interrupt, CHANGE);
     }
 
     void addCallback(const Callback& c)
@@ -46,44 +60,55 @@ public:
         return val;
     }
 
-    void visit();
-    
+    void visit()
+    {
+        if (gotInterrupt)
+            scan();
+        gotInterrupt = false;
+    }
+
 private:
     void invokeCallbacks(Value value)
     {
-        for (auto& c : callbacks)
-        {
+        for (auto& c : callbacks) {
             c(value);
         }
     }
 
     void updateButtonState(bool newState)
     {
-        if (newState != buttonState)
-        {
+        if (newState != buttonState) {
+            Serial.print("update button state, old: ");
+            Serial.print(buttonState);
+            Serial.print(" new: ");
+            Serial.println(newState);
+
             buttonState = newState;
             invokeCallbacks(buttonState);
         }
-    }
 
+    }
     void scan()
-    {        
-        history <<= 1;
-        history |= getValue();
-        int sumStates = __builtin_popcount(history);
-        if (sumStates >= 10)
-            updateButtonState(true);
-        else if (sumStates <= 4)
-            updateButtonState(false);
+    {
+        updateButtonState(getValue());
+
+    //     history <<= 1;
+    //     history |= getValue();
+    //     int sumStates = __builtin_popcount(history);
+    //     if (sumStates >= 10)
+    //         updateButtonState(true);
+    //     else if (sumStates <= 4)
+    //         updateButtonState(false);
     }
 };
 
-Button::Callback turnOn(std::function<void(void)> callback)
-{
-    return [callback](Button::Value val) { if (val) callback(); };
-};
+    inline Button::Callback turnOn(std::function<void(void)> callback)
+    {
+        return [callback](Button::Value val) { if (val) callback(); };
+    };
 
-Button::Callback turnOff(std::function<void(void)> callback)
-{
-    return [callback](Button::Value val) { if (!val) callback(); };
-};
+    inline Button::Callback turnOff(std::function<void(void)> callback)
+    {
+        return [callback](Button::Value val) { if (!val) callback(); };
+    };
+

@@ -29,7 +29,8 @@ const int PN532_SCK = 18;
 
 // sensors
 const int calibrationButtonPin = 36;
-const int hallSensorPin = 16;
+const int leftHallSensorPin = 16;
+const int rightHallSensorPin = 17;
 
 // motor
 const int stepPin = 4;
@@ -69,7 +70,8 @@ Button insideMotionSensor(insideMotionSensorPin);
 Button outsideMotionSensor(outsideMotionSensorPin);
 Button insideLockSwitch(insideLockSwitchPin, true);
 Button outsideLockSwitch(outsideLockSwitchPin, true);
-Button hallSensorButton(hallSensorPin, true);
+Button leftHallSensorButton(leftHallSensorPin, true);
+Button rightHallSensorButton(rightHallSensorPin, true);
 
 // OLED display
 const int I2C_SDA = 21;
@@ -176,15 +178,32 @@ void scanInputs()
     outsideMotionSensor.visit();
     insideLockSwitch.visit();
     outsideLockSwitch.visit();
-    hallSensorButton.visit();
+    leftHallSensorButton.visit();
+    rightHallSensorButton.visit();
 }
 
 void printOutputs()
 {
-    doorOpenStateLED.Set(hallSensorButton.getValue());
+    doorOpenStateLED.Set(leftHallSensorButton.getValue());
+
+    // move this stuff to scanInputs?
+    // int calibration = calibrationButton.getValue();
+    // int insideLock = insideLockSwitch.getValue();
+    // int outsideLock = outsideLockSwitch.getValue();
+    // int insideMotion = insideMotionSensor.getValue();
+    // int outsideMotion = outsideMotionSensor.getValue();
+
+    // printIfElse(calibration, "cal: ", "X", " ");
+    // printIfElse(insideLock, "\tinside lock: ", "  locked", "unlocked");
+    // printIfElse(outsideLock, "\toutside lock: ", "  locked", "unlocked");
+    // printIfElse(insideMotion, "\t", "inside motion", "             ");
+    // printIfElse(outsideMotion, "\t", "outside motion", "              ");
     if (Serial) {
         Serial.print("\tinside hall:");
-        Serial.print(hallSensorButton.getValue());
+        Serial.print(leftHallSensorButton.getValue());
+        // Serial.print("\toutside hall:");
+        // Serial.print(rightHallSensorButton.getValue());
+
         Serial.println("");
     }
 }

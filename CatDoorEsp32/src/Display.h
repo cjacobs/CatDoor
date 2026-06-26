@@ -8,9 +8,6 @@
 #define SCREEN_ADDRESS 0x3C ///< See datasheet for Address; 0x3D for 128x64, 0x3C for 128x32
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &I2C1, OLED_RESET);
 
-
-
-
 void testscrolltext(void) {
   display.clearDisplay();
 

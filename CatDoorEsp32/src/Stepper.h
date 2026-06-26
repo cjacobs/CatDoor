@@ -26,14 +26,23 @@ public:
 
     void init()
     {
-        Serial.println("S1");
         pinMode(stepPin, OUTPUT);
-        Serial.println("S2");
         pinMode(dirPin, OUTPUT);
-        Serial.println("S3");
         pinMode(enablePin, OUTPUT);
-        digitalWrite(enablePin, 0);
-        Serial.println("S4");
+        digitalWrite(enablePin, LOW);
+        
+        digitalWrite(dirPin, LOW);
+        digitalWrite(stepPin, LOW);
+    }
+
+    void enable()
+    {
+        digitalWrite(enablePin, LOW);
+    }
+
+    void disable()
+    {
+        digitalWrite(enablePin, HIGH);
     }
 
     void reset()
@@ -63,22 +72,39 @@ public:
     // 0 <= pos <= numStepsPerRevolution-1
     void goToPos(int pos, int delayTime = 1)
     {
+        pos = pos % stepsPerRevolution;
+
+        Serial.print("currPos: ");
+        Serial.print(currPos);
+        Serial.print(" newPos: ");
+        Serial.print(pos);
+
         if (pos == currPos)
+        {
+            Serial.println(" <nothing>");
             return;
+        }
 
         int diff = ((pos + stepsPerRevolution) - currPos) % stepsPerRevolution;
         int steps = 0;
+        Serial.print(" num steps: ");
+        Serial.print(diff);
+        Serial.println("");
         while (steps < diff) {
-            // lockStepper.step();
+            step();
             steps += 1;
-            delay(4);
+            delay(delayTime);
         }
 
         currPos = (currPos + steps) % stepsPerRevolution;
+        Serial.print(" final pos: ");
+        Serial.print(currPos);
+        Serial.println("");
+
     }
 
 private:
-    void pulsePin(uint8_t pin, bool highPulse = true, int delayTime = 4)
+    void pulsePin(uint8_t pin, bool highPulse = true, int delayTime = 2)
     {
         const uint8_t lo = highPulse ? 0 : 1;
         const uint8_t hi = !lo;

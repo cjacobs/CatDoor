@@ -1,5 +1,4 @@
 #include <unity.h>
-
 #include <StateMachine.h>
 
 void setUp(void) {
@@ -12,8 +11,6 @@ void tearDown(void) {
 
 void test_state_machine_init()
 {
-    
-
     // TEST_ASSERT_EQUAL(32, ...);
 }
 

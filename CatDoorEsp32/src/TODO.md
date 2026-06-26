@@ -37,4 +37,4 @@ The state machine
 
 ## Basic state machine architecture
 
-
+"state machine" class that gets fed events

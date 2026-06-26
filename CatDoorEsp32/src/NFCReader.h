@@ -19,7 +19,7 @@ public:
     void begin()
     {
         nfc.begin();
-        isValid = checkNFCInterface();
+        isValid = checkNFCInterface(true);
         // if (isValid)
         // {
         //     nfc.setPassiveActivationRetries(0xFF);
