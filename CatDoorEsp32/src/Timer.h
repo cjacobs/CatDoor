@@ -2,52 +2,54 @@
 
 #include <Arduino.h>
 
-class Timer 
+class Timer
 {
     public:
-    using Value = int;
+    using Value = unsigned long;
     using Callback = std::function<void(Value)>;
-    
+
     private:
-    int startTime = 0;
-    int interval = 0;
-    int nextFireTime = 0;
+    unsigned long startTime = 0;
+    unsigned long interval = 0;
+    unsigned long nextFireTime = 0;
     bool running = false;
     Callback callback;
 
     public:
-    Timer(int interval, Callback&& callback);
+    Timer(unsigned long interval, Callback&& callback);
 
-    void Start(int delay=0);
+    void Start(unsigned long delay=0);
     void Stop();
     void Visit();
 };
 
-Timer::Timer(int interval, Timer::Callback&& callback) : interval(interval), callback(std::move(callback))
+Timer::Timer(unsigned long interval, Timer::Callback&& callback) : interval(interval), callback(std::move(callback))
 {
 }
 
-void Timer::Start(int delay)
+void Timer::Start(unsigned long delay)
 {
     running = true;
     startTime = millis();
-    nextFireTime = startTime + delay == 0 ? interval : delay;
+    nextFireTime = startTime + (delay == 0 ? interval : delay);
 }
 
 void Timer::Stop()
 {
     running = false;
-
 }
 
 void Timer::Visit()
 {
-    auto currTime = millis();
-    while (currTime >= nextFireTime)
+    if (!running)
+        return;
+
+    unsigned long currTime = millis();
+    // Subtraction-based comparison is rollover-safe: if currTime wraps past
+    // nextFireTime, (currTime - nextFireTime) stays a small positive value.
+    while ((long)(currTime - nextFireTime) >= 0)
     {
         callback(currTime);
-        nextFireTime += interval; 
+        nextFireTime += interval;
     }
-
-    // TODO: rollover at some point
 }
