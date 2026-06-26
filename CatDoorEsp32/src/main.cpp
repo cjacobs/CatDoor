@@ -2,12 +2,14 @@
 
 #include <CatDoorController.h>
 
+CatDoorController controller;
+
 void setup()
 {
-    Controller::setup();
+    controller.setup();
 }
 
 void loop()
 {
-    Controller::loop();
+    controller.loop();
 }
