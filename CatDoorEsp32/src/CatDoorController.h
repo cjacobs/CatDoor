@@ -45,6 +45,9 @@ public:
         while (!Serial)
             delay(10); // for Leonardo/Micro/Zero
 
+
+        
+
         if (Serial)
             Serial.println("Hello!");
 
@@ -57,12 +60,14 @@ public:
 
         // lockStepper.init();
 
-        configureSleepWakeup();
+        if (config.useSleep)
+            configureSleepWakeup();
 
         Serial.println("Done with first part of setup");
 
         if (Serial)
             Serial.println("Initializing inside NFC reader");
+            
         insideNFC.begin();
         hasInsideNFC = insideNFC.checkNFCInterface();
         // Set the max number of retry attempts to read from a card
@@ -141,7 +146,10 @@ public:
             }
         }
         // waitForKeypress();
-        esp_light_sleep_start();
+        if (config.useSleep)
+            esp_light_sleep_start();
+        else
+            delay(config.eventLoopDelay);
     }
 
     void feed(const Event& event);
