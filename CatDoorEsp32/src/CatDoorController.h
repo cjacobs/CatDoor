@@ -46,8 +46,6 @@ public:
             delay(10); // for Leonardo/Micro/Zero
 
 
-        
-
         if (Serial)
             Serial.println("Hello!");
 
@@ -92,8 +90,8 @@ public:
 
     void loop()
     {
-        // scanInputs();
-        // printOutputs();
+        scanInputs();
+        printOutputs();
 
         uint8_t uid[] = { 0, 0, 0, 0, 0, 0, 0 }; // Buffer to store the returned UID
         uint8_t uidLength; // Length of the UID (4 or 7 bytes depending on ISO14443A card type)
@@ -145,11 +143,14 @@ public:
                 outsideNFCStateLED.Set(LOW);
             }
         }
-        // waitForKeypress();
+
         if (config.useSleep)
             esp_light_sleep_start();
         else
             delay(config.eventLoopDelay);
+
+        static int count = 0;
+        Serial.println(count++);
     }
 
     void feed(const Event& event);
@@ -191,12 +192,13 @@ private:
     void configureSleepWakeup()
     {
         // Wake on GPIO activity (buttons go LOW when activated with INPUT_PULLUP)
+        // problem: we want to wake up if the button changes, not at a particular state
         gpio_wakeup_enable((gpio_num_t)config.calibrationButtonPin, GPIO_INTR_LOW_LEVEL);
-        gpio_wakeup_enable((gpio_num_t)config.hallSensorPin, GPIO_INTR_LOW_LEVEL);
+        // gpio_wakeup_enable((gpio_num_t)config.hallSensorPin, GPIO_INTR_LOW_LEVEL);
         esp_sleep_enable_gpio_wakeup();
 
-        // Also wake on timer so NFC polling continues at the nfcTimeout rate
-        esp_sleep_enable_timer_wakeup(config.nfcTimeout * 1000);
+        // Also wake on timer so loop polling continues
+        esp_sleep_enable_timer_wakeup(config.eventLoopDelay * 1000);
     }
 
     void scanInputs()
