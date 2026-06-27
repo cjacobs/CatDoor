@@ -194,7 +194,7 @@ private:
         // Wake on GPIO activity (buttons go LOW when activated with INPUT_PULLUP)
         // problem: we want to wake up if the button changes, not at a particular state
         gpio_wakeup_enable((gpio_num_t)config.calibrationButtonPin, GPIO_INTR_LOW_LEVEL);
-        // gpio_wakeup_enable((gpio_num_t)config.hallSensorPin, GPIO_INTR_LOW_LEVEL);
+        gpio_wakeup_enable((gpio_num_t)config.hallSensorPin, GPIO_INTR_LOW_LEVEL);
         esp_sleep_enable_gpio_wakeup();
 
         // Also wake on timer so loop polling continues
@@ -220,8 +220,12 @@ private:
     {
         doorOpenStateLED.Set(hallSensorButton.getValue());
         if (Serial) {
-            Serial.print("\tinside hall:");
+            Serial.print("\tinside hall: ");
             Serial.print(hallSensorButton.getValue());
+            Serial.println("");
+            
+            Serial.print("\tcalibration: ");
+            Serial.print(calibrationButton.getValue());
             Serial.println("");
         }
     }

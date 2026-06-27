@@ -3,8 +3,8 @@
 struct Config
 {
     // Behavior settings
-    bool useSleep = false;
-    int eventLoopDelay = 125;
+    bool useSleep = true;
+    int eventLoopDelay = 100;
 
     // CatDoor NFC select pins
     int outsideSelectPin = 5;
