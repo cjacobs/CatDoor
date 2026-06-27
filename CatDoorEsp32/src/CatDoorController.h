@@ -7,7 +7,6 @@
 #include <SPI.h>
 #include <Wire.h>
 #include "esp_sleep.h"
-#include "driver/gpio.h"
 
 #include <HAL.h>
 #include <StateMachine.h>
@@ -191,11 +190,10 @@ private:
 
     void configureSleepWakeup()
     {
-        // Wake on GPIO activity (buttons go LOW when activated with INPUT_PULLUP)
-        // problem: we want to wake up if the button changes, not at a particular state
-        gpio_wakeup_enable((gpio_num_t)config.calibrationButtonPin, GPIO_INTR_LOW_LEVEL);
-        gpio_wakeup_enable((gpio_num_t)config.hallSensorPin, GPIO_INTR_LOW_LEVEL);
-        esp_sleep_enable_gpio_wakeup();
+        // Wake when any button pin goes LOW (active-low with INPUT_PULLUP).
+        // ESP_EXT1_WAKEUP_ANY_LOW requires ESP-IDF 5.x / Arduino ESP32 core 3.x+.
+        uint64_t pinMask = (1ULL << config.calibrationButtonPin) | (1ULL << config.hallSensorPin);
+        esp_sleep_enable_ext1_wakeup(pinMask, ESP_EXT1_WAKEUP_ANY_LOW);
 
         // Also wake on timer so loop polling continues
         esp_sleep_enable_timer_wakeup(config.eventLoopDelay * 1000);
