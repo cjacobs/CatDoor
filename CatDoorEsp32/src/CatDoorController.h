@@ -6,6 +6,8 @@
 
 #include <SPI.h>
 #include <Wire.h>
+#include "esp_sleep.h"
+#include "driver/gpio.h"
 
 #include <HAL.h>
 #include <StateMachine.h>
@@ -55,6 +57,8 @@ public:
 
         // lockStepper.init();
 
+        configureSleepWakeup();
+
         Serial.println("Done with first part of setup");
 
         if (Serial)
@@ -83,8 +87,6 @@ public:
 
     void loop()
     {
-        // TODO: use sleep mode and wake on interrupt.
-
         // scanInputs();
         // printOutputs();
 
@@ -139,7 +141,7 @@ public:
             }
         }
         // waitForKeypress();
-        delay(20);
+        esp_light_sleep_start();
     }
 
     void feed(const Event& event);
@@ -176,6 +178,17 @@ private:
     void calibrate()
     {
         // ...
+    }
+
+    void configureSleepWakeup()
+    {
+        // Wake on GPIO activity (buttons go LOW when activated with INPUT_PULLUP)
+        gpio_wakeup_enable((gpio_num_t)config.calibrationButtonPin, GPIO_INTR_LOW_LEVEL);
+        gpio_wakeup_enable((gpio_num_t)config.hallSensorPin, GPIO_INTR_LOW_LEVEL);
+        esp_sleep_enable_gpio_wakeup();
+
+        // Also wake on timer so NFC polling continues at the nfcTimeout rate
+        esp_sleep_enable_timer_wakeup(config.nfcTimeout * 1000);
     }
 
     void scanInputs()
