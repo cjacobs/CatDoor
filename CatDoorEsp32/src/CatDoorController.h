@@ -13,67 +13,38 @@
 #include <LED.h>
 #include <NFCReader.h>
 #include <Stepper.h>
+#include <Config.h>
+
+Config config;
 
 namespace Controller
 {
-const int outsideSelectPin = 5;
-const int insideSelectPin = 17;
-
-// TODO: pass in pins to NFC obj?
-const int PN532_MOSI = 23;
-const int PN532_MISO = 19;
-const int PN532_SCK = 18;
-
-
-// CatDoor pins
-
-// sensors
-const int calibrationButtonPin = 36;
-const int hallSensorPin = 16;
-
-// motor
-const int stepPin = 4;
-const int dirPin = 0;
-const int enablePin = 16;
-
-// display / output
-const int insideNFCStateLEDPin = 32;
-const int outsideNFCStateLEDPin = 33;
-const int doorOpenStateLEDPin = 27;
-
-const int speakerPin = 0;
 
 //
 // Use this line for a breakout with a software SPI connection (recommended):
-NFCReader insideNFC(insideSelectPin);
-NFCReader outsideNFC(outsideSelectPin);
-
-const int nfcTimeout = 125;
+NFCReader insideNFC(config.insideSelectPin);
+NFCReader outsideNFC(config.outsideSelectPin);
 
 bool hasInsideNFC = false;
 bool hasOutsideNFC = false;
 bool insideNFCDetected = false;
 bool outsideNFCDetected = false;
 
-LED insideNFCStateLED(insideNFCStateLEDPin, LOW);
-LED outsideNFCStateLED(outsideNFCStateLEDPin, HIGH);
-LED doorOpenStateLED(doorOpenStateLEDPin);
+LED insideNFCStateLED(config.insideNFCStateLEDPin, LOW);
+LED outsideNFCStateLED(config.outsideNFCStateLEDPin, HIGH);
+LED doorOpenStateLED(config.doorOpenStateLEDPin);
 
-// speaker
-const bool useHalfSteps = false;
-const int stepsPerRevolution = useHalfSteps ? 96 : 48;
-Stepper lockStepper(stepPin, dirPin, enablePin, stepsPerRevolution);
+Stepper lockStepper(config.stepPin, config.dirPin, config.enablePin, config.stepsPerRevolution);
 
-Button calibrationButton(calibrationButtonPin, true);
-Button hallSensorButton(hallSensorPin, true);
+Button calibrationButton(config.calibrationButtonPin, true);
+Button hallSensorButton(config.hallSensorPin, true);
 // Button insideMotionSensor(insideMotionSensorPin);
 // Button outsideMotionSensor(outsideMotionSensorPin);
 // Button insideLockSwitch(insideLockSwitchPin, true);
 // Button outsideLockSwitch(outsideLockSwitchPin, true);
 
 // OLED display
-const int I2C_SDA = 21;
-const int I2C_SCL = 22;
+// TODO: put somewhere else
 TwoWire I2C1 = TwoWire(0); //I2C1 bus
 
 void printIfElse(int val, const char* label, const char* trueLabel, const char* falseLabel)
@@ -189,7 +160,6 @@ void loop()
 {
     // TODO: use sleep mode and wake on interrupt.
 
-
     // scanInputs();
     // printOutputs();
 
@@ -210,7 +180,7 @@ void loop()
     // if (calibrationState) {
     //     Serial.println("Scan a card");
     //     digitalWrite(lockStateLEDPin, 0);
-    //     auto success = readTag(nfc, uid, &uidLength, nfcTimeout);
+    //     auto success = readTag(nfc, uid, &uidLength, config.nfcTimeout);
     //     if (success) {
     //         processTag(uid, uidLength);
     //         advanceLock();
@@ -223,7 +193,7 @@ void loop()
     // }
 
     if (hasInsideNFC) {
-        if (insideNFC.readTag(uid, &uidLength, nfcTimeout)) {
+        if (insideNFC.readTag(uid, &uidLength, config.nfcTimeout)) {
             if (Serial)
                 Serial.println("INSIDE!");
             insideNFC.processTag(uid, uidLength);
@@ -234,7 +204,7 @@ void loop()
     }
 
     if (hasOutsideNFC) {
-        if (outsideNFC.readTag(uid, &uidLength, nfcTimeout)) {
+        if (outsideNFC.readTag(uid, &uidLength, config.nfcTimeout)) {
             if (Serial)
                 Serial.println("OUTSIDE!");
             outsideNFC.processTag(uid, uidLength);
