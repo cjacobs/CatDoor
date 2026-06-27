@@ -37,7 +37,9 @@ public:
 
     void setup()
     {
+        auto startTime = millis();
         Serial.begin(115200);
+        // while (!Serial && ((millis() - startTime) < 1000))
         while (!Serial)
             delay(10); // for Leonardo/Micro/Zero
 
@@ -59,6 +61,9 @@ public:
             Serial.println("Initializing inside NFC reader");
         insideNFC.begin();
         hasInsideNFC = insideNFC.checkNFCInterface();
+        // Set the max number of retry attempts to read from a card
+        // This prevents us from waiting forever for a card, which is
+        // the default behaviour of the PN532.
         if (!hasInsideNFC)
             if (Serial)
                 Serial.println("Error initializing inside NFC reader");
@@ -67,6 +72,9 @@ public:
             Serial.println("Initializing outside NFC reader");
         outsideNFC.begin();
         hasOutsideNFC = outsideNFC.checkNFCInterface();
+        // Set the max number of retry attempts to read from a card
+        // This prevents us from waiting forever for a card, which is
+        // the default behaviour of the PN532.
         // outsideNFC.setPassiveActivationRetries(0xFF);
         if (!hasOutsideNFC)
             if (Serial)
@@ -80,13 +88,34 @@ public:
         // scanInputs();
         // printOutputs();
 
-        uint8_t uid[] = { 0, 0, 0, 0, 0, 0, 0 };
-        uint8_t uidLength;
+        uint8_t uid[] = { 0, 0, 0, 0, 0, 0, 0 }; // Buffer to store the returned UID
+        uint8_t uidLength; // Length of the UID (4 or 7 bytes depending on ISO14443A card type)
 
+        // auto doCalibrate = calibrationButton.buttonPressed();
         auto doCalibrate = calibrationButton.getValue();
         if (doCalibrate) {
+            // For now, just sets zero pos
             lockStepper.reset();
+        } else {
         }
+
+        // auto lockPos = getLockPos();
+        // advanceLockToPos(lockPos);
+
+        // if (calibrationState) {
+        //     Serial.println("Scan a card");
+        //     digitalWrite(lockStateLEDPin, 0);
+        //     auto success = readTag(nfc, uid, &uidLength, config.nfcTimeout);
+        //     if (success) {
+        //         processTag(uid, uidLength);
+        //         advanceLock();
+        //     } else {
+        //         Serial.println(
+        //             "This doesn't seem to be an NTAG203 tag (UUID length != 7 bytes)!");
+        //     }
+
+        //     digitalWrite(lockStateLEDPin, 1);
+        // }
 
         if (hasInsideNFC) {
             if (insideNFC.readTag(uid, &uidLength, config.nfcTimeout)) {
@@ -140,6 +169,8 @@ private:
     // Button insideLockSwitch;
     // Button outsideLockSwitch;
 
+    // OLED display
+    // TODO: put somewhere else
     TwoWire I2C1;
 
     void calibrate()
@@ -150,7 +181,15 @@ private:
     void scanInputs()
     {
         // TODO: check NFC IRQ states
+        // insideNFCDetected = digitalRead(PN532_insideIRQ);
+        // outsideNFCDetected = digitalRead(PN532_insideIRQ);
+
+        // TODO: read hall-effect state
         calibrationButton.visit();
+        // insideMotionSensor.visit();
+        // outsideMotionSensor.visit();
+        // insideLockSwitch.visit();
+        // outsideLockSwitch.visit();
         hallSensorButton.visit();
     }
 
@@ -181,6 +220,7 @@ private:
         if (!Serial)
             return;
 
+        // Wait a bit before trying again
         Serial.println("\n\nSend a character to scan another tag!!!!");
         Serial.flush();
         while (!Serial.available())
