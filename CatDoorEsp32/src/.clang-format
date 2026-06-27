@@ -8,5 +8,5 @@
 #   Mozilla A style complying with Mozilla’s style guide
 #   WebKit A style complying with WebKit’s style guide
 
-BasedOnStyle: WebKit
+BasedOnStyle: Microsoft
 
