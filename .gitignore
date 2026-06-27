@@ -7,3 +7,5 @@
 .lsp/*
 .lsp
 .clj-kondo/
+
+CatDoorEsp32/.claude/agents/test-writer.md
