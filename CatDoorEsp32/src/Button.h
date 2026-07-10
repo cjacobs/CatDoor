@@ -64,7 +64,7 @@ public:
     {
         if (gotInterrupt)
             scan();
-        gotInterrupt = false;
+        gotInterrupt = false; // TODO: fix this -- it's global
     }
 
 private:
