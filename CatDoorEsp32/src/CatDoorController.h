@@ -6,7 +6,7 @@
 
 #include <SPI.h>
 #include <Wire.h>
-#include "esp_sleep.h"
+#include <esp_sleep.h>
 
 #include <HAL.h>
 #include <StateMachine.h>
@@ -190,12 +190,9 @@ private:
 
     void configureSleepWakeup()
     {
-        // Wake when any button pin goes LOW (active-low with INPUT_PULLUP).
-        // ESP_EXT1_WAKEUP_ANY_LOW requires ESP-IDF 5.x / Arduino ESP32 core 3.x+.
-        uint64_t pinMask = (1ULL << config.calibrationButtonPin) | (1ULL << config.hallSensorPin);
-        esp_sleep_enable_ext1_wakeup(pinMask, ESP_EXT1_WAKEUP_ANY_LOW);
-
-        // Also wake on timer so loop polling continues
+        // ESP-IDF 4.x has no "wake when ANY pin goes LOW" mode for ext1 wakeup
+        // (only ALL_LOW or ANY_HIGH). Since buttons are active-low and checked
+        // every loop iteration, timer-only wakeup is sufficient.
         esp_sleep_enable_timer_wakeup(config.eventLoopDelay * 1000);
     }
 
