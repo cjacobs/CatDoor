@@ -1,29 +1,31 @@
+#pragma once
+
 #include <functional>
 
 #include <Arduino.h>
 
 class Timer
 {
-    public:
+  public:
     using Value = unsigned long;
     using Callback = std::function<void(Value)>;
 
-    private:
+  private:
     unsigned long startTime = 0;
     unsigned long interval = 0;
     unsigned long nextFireTime = 0;
     bool running = false;
     Callback callback;
 
-    public:
-    Timer(unsigned long interval, Callback&& callback);
+  public:
+    Timer(unsigned long interval, Callback &&callback);
 
-    void Start(unsigned long delay=0);
+    void Start(unsigned long delay = 0);
     void Stop();
     void Visit();
 };
 
-Timer::Timer(unsigned long interval, Timer::Callback&& callback) : interval(interval), callback(std::move(callback))
+Timer::Timer(unsigned long interval, Timer::Callback &&callback) : interval(interval), callback(std::move(callback))
 {
 }
 

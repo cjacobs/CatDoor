@@ -1,3 +1,5 @@
+#pragma once
+
 //
 // Simple button / switch class
 //
@@ -6,12 +8,13 @@
 #include <functional>
 #include <vector>
 
-class Button {
-public:
+class Button
+{
+  public:
     using Value = bool;
     using Callback = std::function<void(Value)>;
 
-private:
+  private:
     int pin;
     uint16_t history = 0;
     unsigned long T1 = 0;
@@ -27,11 +30,9 @@ private:
         gotInterrupt = true;
     }
 
-public:
+  public:
     Button(int pin, bool normally_closed = false, int timeInterval = 5, Callback callback = nullptr)
-        : pin(pin)
-        , nc(normally_closed)
-        , timeInterval(timeInterval)
+        : pin(pin), nc(normally_closed), timeInterval(timeInterval)
     {
         addCallback(callback);
     }
@@ -46,7 +47,7 @@ public:
         attachInterrupt(digitalPinToInterrupt(pin), interrupt, CHANGE);
     }
 
-    void addCallback(const Callback& c)
+    void addCallback(const Callback &c)
     {
         if (c)
             callbacks.push_back(c);
@@ -67,17 +68,19 @@ public:
         gotInterrupt = false; // TODO: fix this -- it's global
     }
 
-private:
+  private:
     void invokeCallbacks(Value value)
     {
-        for (auto& c : callbacks) {
+        for (auto &c : callbacks)
+        {
             c(value);
         }
     }
 
     void updateButtonState(bool newState)
     {
-        if (newState != buttonState) {
+        if (newState != buttonState)
+        {
             Serial.print("update button state, old: ");
             Serial.print(buttonState);
             Serial.print(" new: ");
@@ -86,7 +89,6 @@ private:
             buttonState = newState;
             invokeCallbacks(buttonState);
         }
-
     }
     void scan()
     {
@@ -100,13 +102,18 @@ private:
     }
 };
 
-    inline Button::Callback turnOn(std::function<void(void)> callback)
-    {
-        return [callback](Button::Value val) { if (val) callback(); };
+inline Button::Callback turnOn(std::function<void(void)> callback)
+{
+    return [callback](Button::Value val) {
+        if (val)
+            callback();
     };
+};
 
-    inline Button::Callback turnOff(std::function<void(void)> callback)
-    {
-        return [callback](Button::Value val) { if (!val) callback(); };
+inline Button::Callback turnOff(std::function<void(void)> callback)
+{
+    return [callback](Button::Value val) {
+        if (!val)
+            callback();
     };
-
+};

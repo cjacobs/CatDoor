@@ -1,3 +1,5 @@
+#pragma once
+
 //
 // This is a dead-simple HAL for the Arduino environment
 //

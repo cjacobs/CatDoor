@@ -2,7 +2,7 @@
 
 #include <Util.h>
 
-void printIfElse(int val, const char* label, const char* trueLabel, const char* falseLabel)
+void printIfElse(int val, const char *label, const char *trueLabel, const char *falseLabel)
 {
     if (!Serial)
         return;
@@ -24,9 +24,9 @@ void waitForKeypress()
     Serial.flush();
     while (!Serial.available())
         ;
-    while (Serial.available()) {
+    while (Serial.available())
+    {
         Serial.read();
     }
     Serial.flush();
 }
-

@@ -1,11 +1,14 @@
+#pragma once
+
 //
-// 
+// StateMachine.h
 //
 
-class StateMachine {
+class StateMachine
+{
     typedef void (StateMachine::*StateFunction)(void);
 
-public:
+  public:
     StateMachine()
     {
         SetState(&StateMachine::Home);
@@ -18,7 +21,6 @@ public:
 
     void ProcessEvent()
     {
-
     }
 
     void Pulse() // need better name...
@@ -32,9 +34,12 @@ public:
         bool calibrateButtonHit = true;
 
         // wait for various events
-        if (resetButtonHit) {
+        if (resetButtonHit)
+        {
             SetState(&StateMachine::Reset);
-        } else if (calibrateButtonHit) {
+        }
+        else if (calibrateButtonHit)
+        {
             SetState(&StateMachine::Calibrate);
         }
     }
@@ -64,9 +69,12 @@ public:
         // wait awhile trying to sense a tag
 
         bool gotCorrectCat = true;
-        if (gotCorrectCat) {
+        if (gotCorrectCat)
+        {
             SetState(&StateMachine::Unlock);
-        } else {
+        }
+        else
+        {
             SetState(&StateMachine::Home);
         }
     }
@@ -86,6 +94,6 @@ public:
         SetState(&StateMachine::Home);
     }
 
-private:
+  private:
     StateFunction currStateFn = nullptr;
 };

@@ -1,3 +1,5 @@
+#pragma once
+
 //
 // "business logic" for the cat door
 //
@@ -8,33 +10,31 @@
 #include <Wire.h>
 #include <esp_sleep.h>
 
-#include <HAL.h>
-#include <StateMachine.h>
 #include <Button.h>
+#include <Config.h>
+#include <HAL.h>
 #include <LED.h>
 #include <NFCReader.h>
+#include <StateMachine.h>
 #include <Stepper.h>
-#include <Config.h>
 
-struct Event {};
+struct Event
+{
+};
 
 class CatDoorController
 {
     // TODO: add state machine
 
-public:
+  public:
     CatDoorController(Config cfg = Config{})
-        : config(cfg)
-        , insideNFC(config.insideSelectPin)
-        , outsideNFC(config.outsideSelectPin)
-        , insideNFCStateLED(config.insideNFCStateLEDPin, LOW)
-        , outsideNFCStateLED(config.outsideNFCStateLEDPin, HIGH)
-        , doorOpenStateLED(config.doorOpenStateLEDPin)
-        , lockStepper(config.stepPin, config.dirPin, config.enablePin, config.stepsPerRevolution)
-        , calibrationButton(config.calibrationButtonPin, true)
-        , hallSensorButton(config.hallSensorPin, true)
-        , I2C1(0)
-    {}
+        : config(cfg), insideNFC(config.insideSelectPin), outsideNFC(config.outsideSelectPin),
+          insideNFCStateLED(config.insideNFCStateLEDPin, LOW), outsideNFCStateLED(config.outsideNFCStateLEDPin, HIGH),
+          doorOpenStateLED(config.doorOpenStateLEDPin),
+          lockStepper(config.stepPin, config.dirPin, config.enablePin, config.stepsPerRevolution),
+          calibrationButton(config.calibrationButtonPin, true), hallSensorButton(config.hallSensorPin, true), I2C1(0)
+    {
+    }
 
     void setup()
     {
@@ -44,7 +44,6 @@ public:
         while (!Serial)
             delay(10); // for Leonardo/Micro/Zero
 
-
         if (Serial)
             Serial.println("Hello!");
 
@@ -53,7 +52,10 @@ public:
         doorOpenStateLED.init();
 
         calibrationButton.init();
-        calibrationButton.addCallback([this](Button::Value v) { if (v) calibrate(); });
+        calibrationButton.addCallback([this](Button::Value v) {
+            if (v)
+                calibrate();
+        });
 
         // lockStepper.init();
 
@@ -64,12 +66,9 @@ public:
 
         if (Serial)
             Serial.println("Initializing inside NFC reader");
-            
+
         insideNFC.begin();
         hasInsideNFC = insideNFC.checkNFCInterface();
-        // Set the max number of retry attempts to read from a card
-        // This prevents us from waiting forever for a card, which is
-        // the default behaviour of the PN532.
         if (!hasInsideNFC)
             if (Serial)
                 Serial.println("Error initializing inside NFC reader");
@@ -78,10 +77,6 @@ public:
             Serial.println("Initializing outside NFC reader");
         outsideNFC.begin();
         hasOutsideNFC = outsideNFC.checkNFCInterface();
-        // Set the max number of retry attempts to read from a card
-        // This prevents us from waiting forever for a card, which is
-        // the default behaviour of the PN532.
-        // outsideNFC.setPassiveActivationRetries(0xFF);
         if (!hasOutsideNFC)
             if (Serial)
                 Serial.println("Error initializing outside NFC reader");
@@ -92,15 +87,18 @@ public:
         scanInputs();
         printOutputs();
 
-        uint8_t uid[] = { 0, 0, 0, 0, 0, 0, 0 }; // Buffer to store the returned UID
-        uint8_t uidLength; // Length of the UID (4 or 7 bytes depending on ISO14443A card type)
+        uint8_t uid[] = {0, 0, 0, 0, 0, 0, 0}; // Buffer to store the returned UID
+        uint8_t uidLength;                     // Length of the UID (4 or 7 bytes depending on ISO14443A card type)
 
         // auto doCalibrate = calibrationButton.buttonPressed();
         auto doCalibrate = calibrationButton.getValue();
-        if (doCalibrate) {
+        if (doCalibrate)
+        {
             // For now, just sets zero pos
             lockStepper.reset();
-        } else {
+        }
+        else
+        {
         }
 
         // auto lockPos = getLockPos();
@@ -121,24 +119,32 @@ public:
         //     digitalWrite(lockStateLEDPin, 1);
         // }
 
-        if (hasInsideNFC) {
-            if (insideNFC.readTag(uid, &uidLength, config.nfcTimeout)) {
+        if (hasInsideNFC)
+        {
+            if (insideNFC.readTag(uid, &uidLength, config.nfcTimeout))
+            {
                 if (Serial)
                     Serial.println("INSIDE!");
                 insideNFC.processTag(uid, uidLength);
                 insideNFCStateLED.Set(HIGH);
-            } else {
+            }
+            else
+            {
                 insideNFCStateLED.Set(LOW);
             }
         }
 
-        if (hasOutsideNFC) {
-            if (outsideNFC.readTag(uid, &uidLength, config.nfcTimeout)) {
+        if (hasOutsideNFC)
+        {
+            if (outsideNFC.readTag(uid, &uidLength, config.nfcTimeout))
+            {
                 if (Serial)
                     Serial.println("OUTSIDE!");
                 outsideNFC.processTag(uid, uidLength);
                 outsideNFCStateLED.Set(HIGH);
-            } else {
+            }
+            else
+            {
                 outsideNFCStateLED.Set(LOW);
             }
         }
@@ -152,9 +158,9 @@ public:
         Serial.println(count++);
     }
 
-    void feed(const Event& event);
+    void feed(const Event &event);
 
-private:
+  private:
     Config config;
 
     NFCReader insideNFC;
@@ -214,42 +220,15 @@ private:
     void printOutputs()
     {
         doorOpenStateLED.Set(hallSensorButton.getValue());
-        if (Serial) {
+        if (Serial)
+        {
             Serial.print("\tinside hall: ");
             Serial.print(hallSensorButton.getValue());
             Serial.println("");
-            
+
             Serial.print("\tcalibration: ");
             Serial.print(calibrationButton.getValue());
             Serial.println("");
         }
-    }
-
-    void printIfElse(int val, const char* label, const char* trueLabel, const char* falseLabel)
-    {
-        if (!Serial)
-            return;
-
-        Serial.print(label);
-        if (val)
-            Serial.print(trueLabel);
-        else
-            Serial.print(falseLabel);
-    }
-
-    void waitForKeypress()
-    {
-        if (!Serial)
-            return;
-
-        // Wait a bit before trying again
-        Serial.println("\n\nSend a character to scan another tag!!!!");
-        Serial.flush();
-        while (!Serial.available())
-            ;
-        while (Serial.available()) {
-            Serial.read();
-        }
-        Serial.flush();
     }
 };

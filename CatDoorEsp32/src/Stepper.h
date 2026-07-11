@@ -1,12 +1,14 @@
-
-class Stepper {
-public:
-    enum Dir {
+#pragma once
+class Stepper
+{
+  public:
+    enum Dir
+    {
         CW = 1,
         CCW = -1
     };
 
-private:
+  private:
     uint8_t stepPin;
     uint8_t dirPin;
     uint8_t enablePin;
@@ -15,12 +17,9 @@ private:
     int currPos; // in steps
     Stepper::Dir dir;
 
-public:
+  public:
     Stepper(uint8_t stepPin, uint8_t dirPin, uint8_t enablePin, int stepsPerRevolution)
-        : stepPin(stepPin)
-        , dirPin(dirPin)
-        , enablePin(enablePin)
-        , stepsPerRevolution(stepsPerRevolution)
+        : stepPin(stepPin), dirPin(dirPin), enablePin(enablePin), stepsPerRevolution(stepsPerRevolution)
     {
     }
 
@@ -30,7 +29,7 @@ public:
         pinMode(dirPin, OUTPUT);
         pinMode(enablePin, OUTPUT);
         digitalWrite(enablePin, LOW);
-        
+
         digitalWrite(dirPin, LOW);
         digitalWrite(stepPin, LOW);
     }
@@ -65,9 +64,15 @@ public:
         dir = d;
     }
 
-    Dir getDir() { return dir; };
+    Dir getDir()
+    {
+        return dir;
+    };
 
-    int getPos() { return currPos; }
+    int getPos()
+    {
+        return currPos;
+    }
 
     // 0 <= pos <= numStepsPerRevolution-1
     void goToPos(int pos, int delayTime = 1)
@@ -90,7 +95,8 @@ public:
         Serial.print(" num steps: ");
         Serial.print(diff);
         Serial.println("");
-        while (steps < diff) {
+        while (steps < diff)
+        {
             step();
             steps += 1;
             delay(delayTime);
@@ -100,10 +106,9 @@ public:
         Serial.print(" final pos: ");
         Serial.print(currPos);
         Serial.println("");
-
     }
 
-private:
+  private:
     void pulsePin(uint8_t pin, bool highPulse = true, int delayTime = 2)
     {
         const uint8_t lo = highPulse ? 0 : 1;

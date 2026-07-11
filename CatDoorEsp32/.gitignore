@@ -9,3 +9,5 @@
 .lsp/*
 .lsp
 .clj-kondo/
+
+.claude/settings.local.json
